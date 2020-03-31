@@ -11,18 +11,24 @@
         var height = view.size.height/2
         console.clear();
 
-        var numPaths= 5;
-        var pointsMin=2;
-        var pointsMax = 10;
+        var numPaths= 5; //number of paths
+        var pointsMin=2; //minimum number of waves in a path
+        var pointsMax = 10; //maximum number of waves in a path
         var pathColor= '#3c8c34';
         var pathWidth= 2;
         //-------------------------------------
-        var yText=80;
-        var xText=10;
-        var yTextdiff=20;
-        var xTextdiff=25;
-        var textsize=0.5;
+        var textcontent='Unser Grund \n\t\t\t\t und Boden \t\t\t\tals \n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t Gemeingut';
+        var yText=50; //minimum distance between top and text
+        var xText=10; //minimum distance between left border and text
+        var yTextdiff=20; //minimum y-direction differences between all texts
+        var xTextdiff=25; //minimum x-direction differences between all texts
+        var textsize=3;
+        var textcolor='#3c8c34';
+        var textfont='Courier New';
+        var fontweight='bold';
         //-------------------------------------
+
+        
         var maxheight=view.size.height/numPaths;
         var mousePos = view.center / 2;
         var pathMaxHeights = [];
@@ -53,11 +59,11 @@
 
             var text = new PointText({
                 point: [width/2+xText+getRndInteger(-width/xTextdiff,width/xTextdiff), height/2+yText+getRndInteger(-height/yTextdiff,height/yTextdiff)],
-                content: 'Unser Grund \n\t\t\t\t und Boden \t\t\t\tals \n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t Gemeingut',
-                fillColor: '#3c8c34',
-                fontFamily: 'Courier New',
-                fontWeight: 'bold',
-                fontSize: width*textsize,
+                content: textcontent,
+                fillColor: textcolor,
+                fontFamily: textfont,
+                fontWeight: fontweight,
+                fontSize: width/height*textsize
             })
             texts.push(text);
 
@@ -66,8 +72,7 @@
 
 
         }
-        console.log("screenwidth:"+width+"screenHeight: "+ height)
-        console.log("path: "+ paths.length+ " clone: " + pathClones.length)
+        console.log("screenwidth: "+width+"screenHeight: "+ view.size.height)
         for (var i = 0; i <numPaths; i++) {
             var layer = new paper.Layer();
             layer.activate();
@@ -75,14 +80,11 @@
             layer.addChild(texts[i]);
             layer.addChild(paths[i].path);
 
-            /*pathClones[i].strokeColor='black';
-            pathClones[i].strokeWidth=20;*/
 
             groups.push(new paper.Group({
                 children: [pathClones[i], texts[i]],
                 clipped: true,
-                //strokeColor: 'black',
-                fillColor: '#3c8c34'
+                fillColor: textcolor
             }));
 
 
@@ -111,7 +113,7 @@
             //path.path.fullySelected = true;
             path.points +=4;
 
-            console.log("initPath, pathhash: "+path.path+" pathCenter: "+path.pathCenterY+" pathPoints: "+path.points);
+            //console.log("initPath, pathhash: "+path.path+" pathCenter: "+path.pathCenterY+" pathPoints: "+path.points);
         }
 
         function onFrame(event) {
@@ -149,7 +151,7 @@
 
         function changeTextPos(text) {
             text.position = new Point(width/2+xText+getRndInteger(-width/xTextdiff,width/xTextdiff), height/2+yText+getRndInteger(-height/yTextdiff,height/yTextdiff));
-            text.fontSize = (height/width)*textsize;
+            text.fontSize = width/height*textsize;
         }
 
         function randomSpacedIntervalV1(min, max, count, spacing) {
@@ -170,16 +172,19 @@
 
         // Reposition the path whenever the window is resized:
         function onResize(event) {
+            width= view.size.width;
+            height = view.size.height/2
             pathCentersY=-(view.size.height/(numPaths*2));
 
-            for(var i=0; i<numPaths;i++){
+            for(var i=0; i<numPaths;i++) {
                 changeTextPos(texts[i]);
-                pathCentersY+=view.size.height/numPaths;
-                paths[i].pathCenterY=pathCentersY;
+                pathCentersY += view.size.height / numPaths;
+                paths[i].pathCenterY = pathCentersY;
                 initializePath(paths[i]);
 
                 pathClones[i].copyContent(paths[i].path);
             }
+            console.log("screen resized: new width: "+width+" new height: "+ view.size.height)
         }
     </script>
 </head>
