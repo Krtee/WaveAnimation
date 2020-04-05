@@ -109,7 +109,7 @@ function initializePath(path) {
     path.path.add(new Point(-500, view.size.height));
     path.path.add(new Point(-100, path.pathCenterY));
     var thisPathpoints = getRndInteger(pointsMin, pointsMax);
-    var distancebetweenpoints = width / (thisPathpoints * 1.5);
+    var distancebetweenpoints = width / (thisPathpoints * 1.2);
     var pointsX = randomSpacedIntervalV1(0, width, thisPathpoints, distancebetweenpoints);
     pointsX.sort(function (a, b) {
         return a - b
