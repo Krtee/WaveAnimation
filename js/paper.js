@@ -109,11 +109,9 @@ function initializePath(path) {
     path.path.add(new Point(-500, view.size.height));
     path.path.add(new Point(-100, path.pathCenterY));
     var thisPathpoints = getRndInteger(pointsMin, pointsMax);
-    var distancebetweenpoints = width / (thisPathpoints * 1.2);
+    var distancebetweenpoints = width / (thisPathpoints * 1.5);
     var pointsX = randomSpacedIntervalV1(0, width, thisPathpoints, distancebetweenpoints);
-    pointsX.sort(function (a, b) {
-        return a - b
-    });
+    console.log(pointsX);
     for (var i = 0; i < thisPathpoints - 1; i++) {
         var point = new Point(pointsX[i], path.pathCenterY);
         path.path.add(point);
@@ -173,15 +171,16 @@ function changeTextPos(text,media) {
 }
 
 function randomSpacedIntervalV1(min, max, count, spacing) {
-    var available = max - min - spacing * (count - 1);
-    if (available < 0) return false;
+    var available = max-min - spacing * (count-1);
+    console.log("available "+ available);
+    if (available<0) return false;
     // not able to fit the this amount of values in this range
 
     var arr = [];
-    for (var i = 0; i < count; i++) {
-        var temp = Math.round(Math.random() * available);
-        arr[i] = ((i == 0) ? min + temp : arr[i - 1] + temp + spacing);
-        available -= temp;
+    for (var i = 0; i<count; i++) {
+        var temp     = Math.round( Math.random()*available / (count-1)*2 );
+        arr[i]       = (i==0)? min+temp : arr[i-1] + temp + spacing;
+        available   -= temp;
     }
     return arr;
 }
