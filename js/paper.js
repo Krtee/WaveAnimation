@@ -71,9 +71,9 @@ for (var i = 0; i < numPaths + 1; i++) {
         fontSize: height * textsizeH
     })
 
-    /*if(navigator.language=='en-GB'){
+    if(navigator.language=='en-GB'){
         text.content= textcontentEN;
-    }*/
+    }
     texts.push(text);
 
     var pathClone = paths[i].path.clone()
