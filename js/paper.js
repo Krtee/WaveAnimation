@@ -38,11 +38,12 @@ var maxheight = view.size.height / numPaths;
 var mousePos = view.center / 2;
 var pathMaxHeights = [];
 var paths = [];
-var pathClones = [];
+//var pathClones = [];
 var pathHeights = [];
 var pathCenterY = -view.size.height / numPaths - (view.size.height / (numPaths * 2));
 var texts = [];
 var groups = [];
+var intersection = [];
 
 
 for (var i = 0; i < numPaths + 1; i++) {
@@ -57,34 +58,36 @@ for (var i = 0; i < numPaths + 1; i++) {
         points: 0
     }
     paths.push(pathObject);
-    paths[i].path.fillColor = pathBackground;
+    //paths[i].path.fillColor = pathBackground;
     paths[i].path.strokeColor = pathColor;
     paths[i].path.strokeWidth = pathWidth;
     initializePath(paths[i]);
 
-    var text = new PointText({
-        point: [width / 2 + xText + getRndInteger(-width / xTextdiff, width / xTextdiff), height / 2 + yText + getRndInteger(-height / yTextdiff, height / yTextdiff)],
-        content: textcontentDE,
-        fillColor: textcolor,
-        fontFamily: textfont,
-        fontWeight: fontweight,
-        fontSize: height * textsizeH
-    })
+    if(i!=numPaths) {
+        var text = new PointText({
+            point: [width / 2 + xText + getRndInteger(-width / xTextdiff, width / xTextdiff), height / 2 + yText + getRndInteger(-height / yTextdiff, height / yTextdiff)],
+            content: textcontentDE,
+            fillColor: textcolor,
+            fontFamily: textfont,
+            fontWeight: fontweight,
+            fontSize: height * textsizeH
+        })
 
-    if(navigator.language=='en-GB'){
-        text.content= textcontentEN;
+        /*if(navigator.language=='en-GB'){
+            text.content= textcontentEN;
+        }*/
+        texts.push(text);
     }
-    texts.push(text);
 
-    var pathClone = paths[i].path.clone()
-    pathClones.push(pathClone);
+    //var pathClone = paths[i].path.clone()
+    //pathClones.push(pathClone);
 
     paths[i].path.opacity = pathOpacity;
 
 
 }
 console.log("screenwidth: " + width + "screenHeight: " + view.size.height)
-for (var i = 0; i < numPaths; i++) {
+/*for (var i = 0; i < numPaths; i++) {
     var layer = new paper.Layer();
     layer.activate();
     layer.addChild(pathClones[i]);
@@ -100,7 +103,7 @@ for (var i = 0; i < numPaths; i++) {
     }));
 
 
-}
+}*/
 
 
 function initializePath(path) {
@@ -128,6 +131,12 @@ function initializePath(path) {
 
 function onFrame(event) {
     for (var a = 1; a < paths.length; a++) {
+        if(intersection[a-1]){
+            intersection[a-1].remove();
+        }
+        if(groups[a-1]){
+            groups[a-1].remove();
+        }
 
         paths[a].pathMaxHeight += (paths[a].pathCenterY - mousePos.y - paths[a].pathMaxHeight) / Math.floor(Math.random() * maxpathspeed + minpathspeed);
         if (paths[a].pathMaxHeight > maxheight) {
@@ -140,14 +149,44 @@ function onFrame(event) {
             var sinHeight = Math.sin(sinSeed / 200) * paths[a].pathMaxHeight;
             var yPos = Math.sin(sinSeed / 100) * sinHeight + paths[a].pathCenterY;
             paths[a].path.segments[i].point.y = yPos;
-            pathClones[a].segments[i].point.y = yPos;
+            //pathClones[a].segments[i].point.y = yPos;
         }
-        pathClones[a].smooth({type: 'continuous'});
+
+        //pathClones[a].smooth({type: 'continuous'});
         paths[a].path.smooth({type: 'continuous'});
 
 
+        intersection[a-1]=paths[a-1].path.exclude(paths[a].path);
+        intersection[a-1].fillColor="black";
+        groups[a-1]= new Group({
+            children:[intersection[a-1],texts[a-1]],
+            clipped:true
+        });
+
     }
-    //console.log(pathHeight);
+
+    /*for (i=0; i<intersection.length;i++){
+        switch (i) {
+            case 0:
+                intersection[i].fillColor="blue";
+                break;
+            case 1:
+                intersection[i].fillColor="red";
+                break;
+            case 2:
+                intersection[i].fillColor="yellow";
+                break;
+            case 3:
+                intersection[i].fillColor="green";
+                break;
+            case 4:
+                intersection[i].fillColor="pink";
+                break;
+            default:
+                intersection[i].fillColor="black";
+        };
+    }*/
+    //console.log(intersection.length +" "+ texts.length+ " "+ paths[0].pathMaxHeight);
 }
 
 function onMouseMove(event) {
@@ -185,6 +224,17 @@ function randomSpacedIntervalV1(min, max, count, spacing) {
     return arr;
 }
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+
+
 
 // Reposition the path whenever the window is resized:
 function onResize(event) {
@@ -193,12 +243,14 @@ function onResize(event) {
     pathCentersY = -view.size.height / numPaths - (view.size.height / (numPaths * 2));
 
     for (var i = 0; i < numPaths + 1; i++) {
-        changeTextPos(texts[i],media);
+        if(i!=numPaths){
+            changeTextPos(texts[i],media);
+        }
         pathCentersY += view.size.height / numPaths;
         paths[i].pathCenterY = pathCentersY;
         initializePath(paths[i]);
 
-        pathClones[i].copyContent(paths[i].path);
+        //pathClones[i].copyContent(paths[i].path);
     }
     console.log("screen resized: new width: " + width + " new height: " + view.size.height)
 }
