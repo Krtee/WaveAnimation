@@ -26,7 +26,7 @@ var xTextdiff = 25; //minimum x-direction differences between all texts,the high
 var textsizeH = 0.3;// calc: height*textsizeH, uses this if width > switchpoint
 var switchpoint= 800;
 var textsizeW = 0.05; // calc: width*textsizeW, uses this if width < switchpoint
-var textsizeM= 0.02; //  calc: width*textsizeW, uses this if on mobile
+var textsizeM= 0.03; //  calc: width*textsizeW, uses this if on mobile
 var textcolor = '#3c8c34';
 var textfont = 'Courier New';
 var fontweight = 'bold';
@@ -73,9 +73,9 @@ for (var i = 0; i < numPaths + 1; i++) {
             fontSize: height * textsizeH
         })
 
-        /*if(navigator.language=='en-GB'){
+        if(navigator.language=='en-GB'){
             text.content= textcontentEN;
-        }*/
+        }
         texts.push(text);
     }
 
