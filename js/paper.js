@@ -5,17 +5,22 @@ console.log(navigator.language);
 
 //-------------------------------------
 //-------------------------------------
-var numPaths = 5; //number of paths
+var numPaths = Math.floor(width/500)+2; //number of paths '+2' is the minimum
 var pointsMin = 2; //minimum number of waves in a path
 var pointsMax = 10; //maximum number of waves in a path
 var pathColor = '#3c8c34';
-var pathWidth = 2;
+var pathWidth;
+if(width>2000){
+    pathWidth=3;
+}else {
+    pathWidth=2;
+}
 var pathBackground = 'white';
 var pathOpacity = 1;
 var maxpathspeed= 30; // the higher the number, the slower
 var minpathspeed= 40; // the higher the number, the slower
-var overallPathsH=-height/10;
-var maxheight = view.size.height / numPaths;
+var overallPathsH=-height/10;  //moves whole canvas up and down
+var maxheight = view.size.height / numPaths; //amplitude of paths
 //-------------------------------------
 var textcontentEN= 'Our land as common property';
 var textcontentDE = 'Unser Grund \n\t\t\t\t und Boden \t\t\t\tals \n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t Gemeingut';
@@ -70,13 +75,12 @@ for (var i = 0; i < numPaths ; i++) {
 
     if(i!=numPaths) {
         var text = new PointText({
-            point: [width / 2 + xText + getRndInteger(-width / xTextdiff, width / xTextdiff), height / 2 + yText + getRndInteger(-height / yTextdiff, height / yTextdiff)],
-            content: textcontentDE,
             fillColor: textcolor,
             fontFamily: textfont,
             fontWeight: fontweight,
-            fontSize: height * textsizeH
-        })
+        });
+
+        responsiveText(text);
 
         if(navigator.language=='en-GB'){
             text.content= textcontentEN;
@@ -206,21 +210,38 @@ function randomSpacedIntervalV1(min, max, count, spacing) {
     return arr;
 }
 
+function responsiveText(text) {
+    if(window.matchMedia("(max-width: "+switchpoint+"px)").matches){
+        changeTextPos(text,xTextM,yTextM,xTextdiffM,yTextdiffM,textsizeM,true);
+
+    }
+    else {
+        changeTextPos(text,xText,yText,xTextdiff,yTextdiff,textsizeH,false);
+    }
+}
+
+function updatePaths() {
+    numPaths = Math.floor(width / 500)+2;
+    if (width > 2000) {
+        pathWidth = 3;
+    } else {
+        pathWidth = 2;
+
+    }
+}
+
 // Reposition the path whenever the window is resized:
 function onResize(event) {
     width = view.size.width;
     height = view.size.height;
     pathCentersY = view.size.height +overallPathsH;
 
+    updatePaths();
+
+
     for (var i = 0; i < numPaths ; i++) {
         if(i!=numPaths){
-            if(window.matchMedia("(max-width: "+switchpoint+"px)").matches){
-                changeTextPos(texts[i],xTextM,yTextM,xTextdiffM,yTextdiffM,textsizeM,true);
-
-            }
-            else {
-                changeTextPos(texts[i],xText,yText,xTextdiff,yTextdiff,textsizeH,false);
-            }
+            responsiveText(texts[i]);
         }
         pathCentersY -= view.size.height / numPaths;
         paths[i].pathCenterY = pathCentersY;
