@@ -24,18 +24,18 @@ var maxheight = view.size.height / numPaths; //amplitude of paths
 //-------------------------------------
 var textcontentEN= 'Our land as common property';
 var textcontentDE = 'Unser Grund \n\t\t\t\t und Boden \t\t\t\tals \n\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t Gemeingut';
-var yText = -height/5; //minimum distance between top and text, not responsive
+var yText =-height/10; //minimum distance between top and text, not responsive
 var xText = 0; //minimum distance between left border and text,not responsive
 var yTextdiff = width/20; //minimum y-direction differences between all texts,the higher the number the closer it gets
 var xTextdiff = width/25; //minimum x-direction differences between all texts,the higher the number the closer it gets
-var textsizeH = 0.1;// calc: height*textsizeH, uses this if width > switchpoint
+var textsizeH = 0.03;// calc: height*textsizeH, uses this if width > switchpoint
 
 var switchpoint= 1000;
 var yTextM =-height/10; //minimum distance between top and text, not responsive
 var xTextM =width/10; //minimum distance between left border and text,not responsive
 var yTextdiffM = width/10; //minimum y-direction differences between all texts,the higher the number the closer it gets
 var xTextdiffM = width/10; //minimum y-direction differences between all texts,the higher the number the closer it gets
-var textsizeM= 0.08; //  calc: width*textsizeW, uses this if on mobile
+var textsizeM= 0.03; //  calc: width*textsizeW, uses this if on mobile
 var textcolor = '#3c8c34';
 var textfont = 'Courier New';
 var fontweight = 'bold';
@@ -53,69 +53,76 @@ var texts = [];
 var groups = [];
 var intersection = [];
 
+init();
 
-for (var i = 0; i < numPaths ; i++) {
-    pathCenterY -= view.size.height / numPaths;
-    pathHeights.push(pathCenterY);
-    pathMaxHeights.push(mousePos.y);
-    var path = new Path();
-    var pathObject = {
-        path: path,
-        pathCenterY: pathCenterY,
-        pathMaxHeight: mousePos.y,
-        points: 0
-    }
-    paths.push(pathObject);
-    if(i!=numPaths-1) {
-        paths[i].path.fillColor = pathBackground;
-    }
-    paths[i].path.strokeColor = pathColor;
-    paths[i].path.strokeWidth = pathWidth;
-    initializePath(paths[i]);
-
-    if(i!=numPaths) {
-        var text = new PointText({
-            fillColor: textcolor,
-            fontFamily: textfont,
-            fontWeight: fontweight,
-        });
-
-        responsiveText(text);
-
-        if(navigator.language=='en-GB'){
-            text.content= textcontentEN;
+function init() {
+    for (var i = 0; i < numPaths ; i++) {
+        pathCenterY -= view.size.height / numPaths;
+        pathHeights.push(pathCenterY);
+        pathMaxHeights.push(mousePos.y);
+        var path = new Path();
+        var pathObject = {
+            path: path,
+            pathCenterY: pathCenterY,
+            pathMaxHeight: mousePos.y,
+            points: 0
         }
-        texts.push(text);
+        paths.push(pathObject);
+        if(i!=numPaths-1) {
+            paths[i].path.fillColor = pathBackground;
+        }
+        paths[i].path.strokeColor = pathColor;
+        paths[i].path.strokeWidth = pathWidth;
+        initializePath(paths[i]);
+
+        if(i!=numPaths) {
+            var text = new PointText({
+                fillColor: textcolor,
+                fontFamily: textfont,
+                fontWeight: fontweight,
+            });
+
+
+            console.log("hello")
+
+            if(navigator.language=='en-GB'){
+                text.content= textcontentEN;
+            }
+            responsiveText(text);
+
+            texts.push(text);
+        }
+
+        var pathClone = paths[i].path.clone()
+        pathClones.push(pathClone);
+
+        paths[i].path.opacity = pathOpacity;
+
+        console.log(paths[i].pathCenterY);
+
+
     }
+    console.log("screenwidth: " + width + "screenHeight: " + view.size.height)
+    for (var i = 0; i < numPaths; i++) {
+        var layer = new paper.Layer();
+        layer.activate();
+        layer.addChild(pathClones[i]);
+        layer.addChild(texts[i]);
+        layer.addChild(paths[i].path);
 
-    var pathClone = paths[i].path.clone()
-    pathClones.push(pathClone);
-
-    paths[i].path.opacity = pathOpacity;
-
-    console.log(paths[i].pathCenterY);
 
 
+        groups.push(new paper.Group({
+            children: [pathClones[i], texts[i]],
+            clipped: true,
+            //fillColor: textcolor
+        }));
+
+
+
+    }
 }
-console.log("screenwidth: " + width + "screenHeight: " + view.size.height)
-for (var i = 0; i < numPaths; i++) {
-    var layer = new paper.Layer();
-    layer.activate();
-    layer.addChild(pathClones[i]);
-    layer.addChild(texts[i]);
-    layer.addChild(paths[i].path);
 
-
-
-    groups.push(new paper.Group({
-        children: [pathClones[i], texts[i]],
-        clipped: true,
-        //fillColor: textcolor
-    }));
-
-
-
-}
 
 function initializePath(path) {
     path.points = 0;
@@ -192,7 +199,7 @@ function getRndInteger(min, max) {
 function changeTextPos(text,x,y,xdiff,ydiff,textsize,mobile) {
 
     text.position = new Point(width / 2 + x + getRndInteger(-width / xdiff, width / xdiff), height / 2 + y + getRndInteger(-height / ydiff, height / ydiff));
-    text.fontSize = height * textsize;
+    text.fontSize = width * textsize;
 }
 
 function randomSpacedIntervalV1(min, max, count, spacing) {
@@ -221,14 +228,22 @@ function responsiveText(text) {
 }
 
 function updatePaths() {
+    var curr= numPaths;
     numPaths = Math.floor(width / 500)+2;
     if (width > 2000) {
         pathWidth = 3;
     } else {
         pathWidth = 2;
-
+    };
+    if(curr!=numPaths){
+        project.clear();
+        init();
     }
+
+
+
 }
+
 
 // Reposition the path whenever the window is resized:
 function onResize(event) {
